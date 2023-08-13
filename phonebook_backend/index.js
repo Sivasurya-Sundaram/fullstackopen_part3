@@ -3,6 +3,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const app = express();
 app.use(cors());
+app.use(express.static("build"));
 morgan.token("requestBody", (request, response) => {
   if (request.method === "POST") {
     return JSON.stringify(request.body);
