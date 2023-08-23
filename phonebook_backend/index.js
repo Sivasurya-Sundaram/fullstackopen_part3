@@ -54,7 +54,7 @@ app.get("/info", (request, response) => {
     );
   });
 });
-app.get("/api/persons/:id", (request, response) => {
+app.get("/api/persons/:id", (request, response, next) => {
   // const id = Number(request.params.id);
   // const person = contacts.find((x) => x.id === id);
   // if (person) {
@@ -62,14 +62,22 @@ app.get("/api/persons/:id", (request, response) => {
   // } else {
   //   response.status(404).end();
   // }
-  Contact.findById(request.params.id).then((contact) => {
-    response.json(contact);
-  });
+  Contact.findById(request.params.id)
+    .then((contact) => {
+      if (contact) {
+        response.json(contact);
+      } else {
+        response.status(404).send({ error: "contact Not found" });
+      }
+    })
+    .catch((error) => next(error));
 });
-app.delete("/api/persons/:id", (request, response) => {
-  Contact.findByIdAndDelete(request.params.id).then((res) => {
-    response.status(204).end();
-  });
+app.delete("/api/persons/:id", (request, response, next) => {
+  Contact.findByIdAndDelete(request.params.id)
+    .then((res) => {
+      response.status(204).end();
+    })
+    .catch(next(error));
 });
 app.post("/api/persons", (request, response) => {
   const person = request.body;
@@ -94,7 +102,30 @@ app.post("/api/persons", (request, response) => {
     }
   });
 });
-
+app.put("/api/persons/:id", (request, response, next) => {
+  const person = request.body;
+  const contact = new Contact({
+    name: person.name,
+    number: person.number,
+  });
+  Contact.findByIdAndUpdate(request.params.id, contact, { new: true })
+    .then((updatedContact) => {
+      response.json(updatedContact);
+    })
+    .catch((error) => next(error));
+});
+const unKnownEndpoint = (request, response, next) => {
+  response.status(404).send({ error: "unknown Endpoint" });
+};
+app.use(unKnownEndpoint);
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted request" });
+  }
+  next(error);
+};
+app.use(errorHandler);
 const PORT = process.env.PORT || 3001;
 app.listen(PORT);
 console.log(`server started on ${PORT}`);
