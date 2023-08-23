@@ -55,6 +55,14 @@ function App() {
             );
             setNewName("");
             setNewNumber("");
+          })
+          .catch((error) => {
+            setMessage(error.response.data.error);
+            setIsError(true);
+            setTimeout(() => {
+              setMessage(null);
+              setIsError(false);
+            }, 5000);
           });
       }
     } else {
@@ -62,17 +70,27 @@ function App() {
         name: newName,
         number: newNumber,
       };
-      contactService.create(newContact).then((contact) => {
-        setMessage(`Added ${contact.name}`);
-        setIsError(false);
-        setTimeout(() => {
-          setMessage(null)
-          setIsError(false)
-        }, 5000);
-        setPersons(persons.concat(contact));
-        setNewName("");
-        setNewNumber("");
-      });
+      contactService
+        .create(newContact)
+        .then((contact) => {
+          setMessage(`Added ${contact.name}`);
+          setIsError(false);
+          setTimeout(() => {
+            setMessage(null);
+            setIsError(false);
+          }, 5000);
+          setPersons(persons.concat(contact));
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => {
+          setMessage(error.response.data.error);
+          setIsError(true);
+          setTimeout(() => {
+            setMessage(null);
+            setIsError(false);
+          }, 5000);
+        });
     }
   };
   const handleDeleteClick = (contact) => {
@@ -89,8 +107,8 @@ function App() {
             `Info of ${contact.name} has already been removed from server`
           );
           setTimeout(() => {
-            setMessage(null)
-            setIsError(false)
+            setMessage(null);
+            setIsError(false);
           }, 5000);
           setPersons(persons.filter((x) => x.id !== contact.id));
         });
