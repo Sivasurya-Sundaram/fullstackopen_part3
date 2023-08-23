@@ -104,10 +104,10 @@ app.post("/api/persons", (request, response) => {
 });
 app.put("/api/persons/:id", (request, response, next) => {
   const person = request.body;
-  const contact = new Contact({
+  const contact = {
     name: person.name,
     number: person.number,
-  });
+  };
   Contact.findByIdAndUpdate(request.params.id, contact, { new: true })
     .then((updatedContact) => {
       response.json(updatedContact);
